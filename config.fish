@@ -89,12 +89,4 @@ set -Ux EDITOR emacs
 #set -x PATH $PATH /usr/local/lib/ruby/gems/2.4.0 /Users/Tawfiq/.gem/ruby/ ~/.gem/ruby/2.0.0 rbenv global 2.3.0
 #set -x PATH $PATH  /Library/Frameworks/Python.framework/Versions/3.5/bin
 
-#Some QMake thing from QT5, required for Capybara
-set -x PATH $PATH /usr/local/Cellar/qt@5.5/5.5.1_1/bin
-#had to go to ./usr/local/Cellar and run:
-# $ tfind qmake | grep "make\$"
-#in order to find which bin folder to add to the path for QMake.
 
-
-#Some rbenv thing
-status --is-interactive; and source (rbenv init -|psub)
