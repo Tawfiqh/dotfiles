@@ -1,0 +1,1 @@
+/Users/tawfiq/.config/fish/config.fish
