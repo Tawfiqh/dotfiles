@@ -21,7 +21,7 @@ function fish_prompt
         function _repo_branch_name
             eval "_$argv[1]_branch_name"
         end
-
+        
         function _repo_type
             if _is_git_repo
                 echo 'git'
@@ -35,17 +35,19 @@ function fish_prompt
     set -l green (set_color -o green)
     set -l blue (set_color -o blue)
     set -l normal (set_color normal)
-
     set -l orange (set_color -o f97a02)
 
     set -l cwd (set_color $fish_color_normal) [(prompt_pwd)]
 
+    set -l time $orange  $orange (date "+$c2%H$c0:$c2%M$c0")' '
+#    set -l time $orange '>' $orange (date "+$c2%H$c0:$c2%M$c0:$c2%S")' '
+
     set -l repo_type (_repo_type)
     if [ $repo_type ]
         set -l repo_branch $cyan(_repo_branch_name $repo_type)
-        set repo_info "$red $repo_type:($repo_branch$red)"
+        set repo_info "$red($repo_branch$red)"
 
     end
 
-    echo -n -s $cwd $repo_info $normal ' $ '
+    echo -n -s $time $cwd $repo_info $normal ' $ '
 end
