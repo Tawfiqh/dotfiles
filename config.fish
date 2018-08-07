@@ -1,43 +1,37 @@
 alias ll="ls -Gap"
 
-alias lld="ls -d ./*/"
-
-function gitpullprojects
-  echo "Put a list of directories here to iterate through and run 'git pull'"
-end
-
-
 function cs
-	 cd $argv; ll; printf "\n"; pwd;
+  cd $argv; ll; printf "\n"; pwd;
 end
 
 function tgre
-	 grep -ir $argv *;
+  grep -ir $argv *;
 end
 
 
-function tgres
-	 grep -iIrF $argv * --exclude-dir log --exclude-dir tmp --exclude-dir _site --exclude-dir node_modules --exclude-dir vendor;
+function tgrex
+  grep -iIrF $argv * --exclude-dir log --exclude-dir tmp --exclude-dir _site --exclude-dir vendor --exclude-dir node_modules;
 end
+
+alias tgres="tgrex" #tgres is easier to type on a QWERTY keyboars
 
 function ltgres
-	 tgres -l $argv
+  tgres $argv -l
 end
 
 function oltgres
-	 ltgres $argv |xargs open
+  ltgres $argv |xargs open
 end
 
-
-alias otgres="oltgres"
+function otgres
+  tgres -l $argv |xargs open ;
+end
 
 function otgre
-	 tgre -l $argv |xargs open;
+ tgre -l $argv |xargs open;
 end
 
-alias otgrex="otgres"
-
-function tfind
+function tfind 
 	 find . -iname "*$argv*";
 end
 
@@ -48,7 +42,7 @@ end
 function dhikr
   set n $argv[1]
 
-  if test -z $n
+  if test -z $n 
     set n 3
   end
 
@@ -79,18 +73,12 @@ function otouch --argument file app
 
 end
 
-
 alias gitloglong="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
-
 
 set -Ux EDITOR emacs
 
 
-
 #CONFIG FOR PATH STUFF
-
-#set -x PATH $PATH /Users/Tawfiq/.rbenv/shims /Users/Tawfiq/.rbenv/  #To find where other ruby stuff is installed run `gem env`
-#set -x PATH $PATH /usr/local/lib/ruby/gems/2.4.0 /Users/Tawfiq/.gem/ruby/ ~/.gem/ruby/2.0.0 rbenv global 2.3.0
-#set -x PATH $PATH  /Library/Frameworks/Python.framework/Versions/3.5/bin
+#set -x PATH $PATH /usr/local/Cellar/qt@5.5/5.5.1_1/bin
 
 
