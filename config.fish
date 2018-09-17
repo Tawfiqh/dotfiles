@@ -1,5 +1,11 @@
 alias ll="ls -Gap"
 
+function forever
+  while sleep 1
+   eval $argv
+  end
+end
+
 function cs
   cd $argv; ll; printf "\n"; pwd;
 end
@@ -10,7 +16,7 @@ end
 
 
 function tgrex
-  grep -iIrF $argv * --exclude-dir log --exclude-dir tmp --exclude-dir _site --exclude-dir vendor --exclude-dir node_modules;
+  grep -iIrF $argv * --exclude-dir log --exclude-dir tmp --exclude-dir _site --exclude-dir vendor --exclude-dir node_modules --exclude-dir wp-includes;
 end
 
 alias tgres="tgrex" #tgres is easier to type on a QWERTY keyboars
