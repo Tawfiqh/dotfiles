@@ -1,5 +1,28 @@
 alias ll="ls -Gap"
 
+function notify
+  set message $argv[2]
+
+  if test -z $message
+    set message "Well."
+  end
+
+  set title $argv[1]
+
+  if test -z $title
+    set title "DONE!"
+  end
+
+
+  set command "display notification \""(echo $message)"\" with title \""(echo $title)"\""
+  echo $command
+#  set command 'display notification "Lorem ipsum dolor sit amet" with title "Title"'
+
+  osascript -e $command
+
+end
+
+
 function forever
   while sleep 1
    eval $argv
@@ -16,7 +39,7 @@ end
 
 
 function tgrex
-  grep -iIrF $argv * --exclude-dir log --exclude-dir tmp --exclude-dir _site --exclude-dir vendor --exclude-dir node_modules --exclude-dir wp-includes;
+  grep -iIrF $argv * --exclude-dir log --exclude-dir tmp --exclude-dir _site --exclude-dir vendor --exclude-dir node_modules --exclude-dir wp-includes --exclude-dir public;
 end
 
 alias tgres="tgrex" #tgres is easier to type on a QWERTY keyboars
