@@ -15,8 +15,6 @@ function notify
 
 
   set command "display notification \""(echo $message)"\" with title \""(echo $title)"\""
-  echo $command
-#  set command 'display notification "Lorem ipsum dolor sit amet" with title "Title"'
 
   osascript -e $command
 
