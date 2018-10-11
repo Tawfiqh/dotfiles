@@ -101,6 +101,24 @@ function logo
                        (UU)'(set_color normal)
 end
 
+function lgit 
+
+# set -x GIT_PAGER less -+X; 
+# set -x GIT_PAGER less -+F -+X;
+
+  git config --global --replace-all core.pager "less -+F -+X "
+
+
+
+
+  git $argv[1];
+
+# set -x GIT_PAGER cat;
+  git config --global --replace-all core.pager "cat"
+
+end
+
+
 function otouch --argument file app
 
  if test -z $file
