@@ -39,7 +39,7 @@ end
 
 
 function tgrex
-  grep -iIrF $argv * --exclude-dir log --exclude-dir tmp --exclude-dir _site --exclude-dir vendor --exclude-dir node_modules --exclude-dir wp-includes --exclude-dir public;
+  grep -iIrF $argv * --exclude-dir log --exclude-dir tmp --exclude-dir _site --exclude-dir vendor --exclude-dir node_modules --exclude-dir wp-includes --exclude-dir public --exclude-dir indexAndLandingPublic --exclude-dir landingPagePublic;
 end
 
 alias tgres="tgrex" #tgres is easier to type on a QWERTY keyboars
@@ -61,11 +61,11 @@ function otgre
 end
 
 function tfind
-	 find . -iname "*$argv*";
+  find . -iname "*$argv*" -not -path "./vendor/*";
 end
 
 function otfind
-	 tfind "$argv" |xargs open ;
+ tfind "$argv"  |xargs open ;
 end
 
 function dhikr
@@ -127,10 +127,7 @@ function lgit
 
   git config --global --replace-all core.pager "less -+F -+X "
 
-
-
-
-  git $argv[1];
+  git $argv;
 
 # set -x GIT_PAGER cat;
   git config --global --replace-all core.pager "cat"
