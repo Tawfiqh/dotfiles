@@ -1,5 +1,7 @@
 alias ll="ls -Gap"
 
+alias lll="ls -loGaprt"
+
 function notify
   set message $argv[2]
 
@@ -58,7 +60,7 @@ function otgre
  tgre -l $argv |xargs open;
 end
 
-function tfind 
+function tfind
 	 find . -iname "*$argv*";
 end
 
@@ -69,7 +71,7 @@ end
 function dhikr
   set n $argv[1]
 
-  if test -z $n 
+  if test -z $n
     set n 3
   end
 
@@ -80,6 +82,23 @@ function dhikr
   end
 
 end
+
+function dhikr2
+  set n $argv[1]
+
+  if test -z $n
+    set n 3
+  end
+
+
+  for x in (seq $n)
+    # echo "Astagz - Astaghfirullah -  أَسْتَغْفِرُ اللّٰهَ‎ "
+    echo " أَسْتَغْفِرُ اللّٰهَ‎ "
+    say "astarg-fur lar" -r (math "((40 * $x) % 350)+ 200")
+  end
+
+end
+
 
 alias tip="ipconfig getifaddr en1| awk '{print \"http:\/\/\" \$1 \":3000/\"}'|pbcopy;pbpaste;echo \"[Copied to clipboard]\""
 
@@ -101,9 +120,9 @@ function logo
                        (UU)'(set_color normal)
 end
 
-function lgit 
+function lgit
 
-# set -x GIT_PAGER less -+X; 
+# set -x GIT_PAGER less -+X;
 # set -x GIT_PAGER less -+F -+X;
 
   git config --global --replace-all core.pager "less -+F -+X "
@@ -134,15 +153,40 @@ function otouch --argument file app
 
  open -a $app $file
 
-
 end
 
-alias gitloglong="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+
+# https://superuser.com/questions/719531/what-is-the-equivalent-of-bashs-and-in-the-fish-shell
+
+function bind_bang
+    switch (commandline -t)[-1]
+        case "!"
+            commandline -t $history[1]; commandline -f repaint
+        case "*"
+            commandline -i !
+    end
+end
+
+function bind_dollar
+    switch (commandline -t)[-1]
+        case "!"
+            commandline -t ""
+            commandline -f history-token-search-backward
+        case "*"
+            commandline -i '$'
+    end
+end
+
+function fish_user_key_bindings
+    bind ! bind_bang
+    bind '$' bind_dollar
+end
+
+
+alias gitloglong="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit -n"
 
 set -Ux EDITOR emacs
 
 
 #CONFIG FOR PATH STUFF
 #set -x PATH $PATH /usr/local/Cellar/qt@5.5/5.5.1_1/bin
-
-
