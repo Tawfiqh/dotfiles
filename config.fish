@@ -1,6 +1,7 @@
 alias ll="ls -Gap"
-
 alias lll="ls -loGaprt"
+
+alias tjupyter="jupyter notebook --NotebookApp.iopub_data_rate_limit=10000000000"
 
 function notify
   set message $argv[2]
@@ -100,6 +101,17 @@ function dhikr2
 end
 
 
+# Photogaphy helpers:
+# ===================
+# flattens all the subfolders into the current folder.
+alias flatten="find . -mindepth 2 -type f -exec mv -i '{}' . ';'"
+
+alias picFlow_flatten_mv_raw="flatten; mkdir RAWs; ls *.ARW | xargs -I \"\{\}\" mv \"\{\}\" RAWs/"
+
+# Rename the light room exports - for files that were imported from light room 
+alias sonyRename="tfind "ORG_"  | sed 's/^......//' | xargs -I '\{\}' mv 'ORG_\{\}' '\{\}'"
+
+
 alias tip="ipconfig getifaddr en1| awk '{print \"http:\/\/\" \$1 \":3000/\"}'|pbcopy;pbpaste;echo \"[Copied to clipboard]\""
 
 function logo
@@ -187,3 +199,4 @@ set -Ux EDITOR emacs
 
 #CONFIG FOR PATH STUFF
 #set -x PATH $PATH /usr/local/Cellar/qt@5.5/5.5.1_1/bin
+set -x PATH $PATH /Users/tawfiq/anaconda3/bin/
