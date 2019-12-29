@@ -127,7 +127,12 @@ alias flatten="find . -mindepth 2 -type f -exec mv -i '{}' . ';'"
 
 # Flattens a folder that may have subfolders containing pictures, then separates all the RAW files into a folder called RAWs
 alias picFlow_flatten_mv_raw="flatten; mkdir RAWs; ls *.ARW | xargs -I \"\{\}\" mv \"\{\}\" RAWs/"
-alias tPhotoFlow="picFlow_flatten_mv_raw"
+
+# Moves all the video files into a Films folder - can probable do this with && so that it only runs in mp4 files are found.
+alias picFlow_flatten_mv_films="set -l filmFiles *.{MP4,mp4}; test  -n \"\$filmFiles\" ;and mkdir Films; echo \$filmFiles | xargs -I \"\{\}\" mv \"\{\}\" Films/"
+
+
+alias tPhotoFlow="picFlow_flatten_mv_raw;picFlow_flatten_mv_films"
 
 # Copy all the Raw files out of the RAWs folder.
 alias copyRaws="ls *.{JPG,jpg} | sed 's/...\$/ARW/' | xargs -I '{}' mv 'RAWs/{}' '{}'"
@@ -136,8 +141,66 @@ alias copyRaws="ls *.{JPG,jpg} | sed 's/...\$/ARW/' | xargs -I '{}' mv 'RAWs/{}'
 # This then deletes the corresponding RAW files.
 alias deleteNonMatchedRAWs="copyRaws; trash RAWs/ ; tPhotoFlow; echo 'Done. RAWs without corresponding JPEG (or jpeg) have been moved to the trash (and can be recovered from there).'"
 
-# Rename the light room exports - for files that were imported from light room
+# Rename the light room exports - for files that were imported from light room mobile
 alias sonyRename="tfind "ORG_"  | sed 's/^......//' | xargs -I '\{\}' mv 'ORG_\{\}' '\{\}'"
+
+alias removeXMP="ls *.xmp | xargs rm"
+
+function renameWithPrefix
+
+   set -l 1 $argv[1]
+   ls *.{JPG,jpg,ARW} |  xargs -I '{}' mv '{}' "$1{}"
+end
+
+# Should adjust to use an argument as a prefix and defaults to "other_camera"
+function renameToOtherCamera
+
+  for fileFound in (ls *.{JPG,jpg,ARW,arw}) 
+    set file2 (echo $fileFound | sed 's/^/other_camera_/')
+    echo mv $fileFound $file2
+    mv $fileFound $file2
+  end
+
+end
+
+function removeEditedSecondNames
+
+  # Get all files that are -2 duplicates
+  for fileFound in (ls *-2.jpg)
+    # Get rid of the -2 from the filename
+    set file2 (echo $fileFound | sed 's/-2//g')
+
+    # Useful output for debugging and seeing what's going on.
+    echo mv $fileFound $file2
+
+    # Move the newer "ABCD-2.jpg" to replace the original "ABCD.jpg"
+    mv $fileFound $file2
+  end
+
+end
+
+
+
+
+
+
+# =============================================
+# FFMPEG Helpers
+
+# Encode a Video Sequence for the iPod/iPhone
+# You can easily convert a video for iPhones and older iPods using this command:
+# $ ffmpeg -i source_video.avi input -acodec aac -ab 128kb -vcodec mpeg4 -b 1200kb -mbd 2 -flags +4mv+trell -aic 2 -cmp 2 -subcmp 2 -s 320x180 -title X final_video.mp4
+
+
+
+# Convert video to frame grabs:
+# ffmpeg -ss 03:00 -i C0037.MP4 -r 2 output-%04d.jpeg
+
+
+
+# This  one works
+# ffmpeg -i C0029.MP4 -vcodec libx264 _C0029.MP4
+# And can then open in Quicktime and export as HEVC to send to iPhone 
 
 
 # =============================================
@@ -233,6 +296,8 @@ alias gitloglong="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%
 # Set default editor as Emacs
 set -Ux EDITOR emacs
 
+# Set textEdit to open new-file instead of "open window" on launch.
+#defaults write -g NSShowAppCentricOpenPanelInsteadOfUntitledFile -bool false
 
 #CONFIG FOR PATH STUFF
 #set -x PATH $PATH /usr/local/Cellar/qt@5.5/5.5.1_1/bin
