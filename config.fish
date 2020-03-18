@@ -129,7 +129,11 @@ alias flatten="find . -mindepth 2 -type f -exec mv -i '{}' . ';'"
 alias picFlow_flatten_mv_raw="flatten; mkdir RAWs; ls *.ARW | xargs -I \"\{\}\" mv \"\{\}\" RAWs/"
 
 # Moves all the video files into a Films folder - can probable do this with && so that it only runs in mp4 files are found.
-alias picFlow_flatten_mv_films="set -l filmFiles *.{MP4,mp4}; test  -n \"\$filmFiles\" ;and mkdir Films; and ls *.{MP4,mp4}| xargs -I \"\{\}\" mv \"\{\}\" Films/"
+function picFlow_flatten_mv_films
+  set -l filmFiles *.{MP4,mp4};
+  test  -n "$filmFiles" ;and mkdir Films;
+  test  -n "$filmFiles" ;and ls *.{MP4,mp4}| xargs -I "{}" mv "{}" Films/
+end
 
 
 alias tPhotoFlow="picFlow_flatten_mv_raw;picFlow_flatten_mv_films"
@@ -200,7 +204,6 @@ function convertVideoToiPhone2
   ffmpeg -i $argv[1] -c:v libx265 -crf 63 -c:a aac -b:a 128k -tag:v hvc1 $filename_iphone.mp4
 #ffmpeg -i input.avi -c:v libx265 -crf 28 -c:a aac -b:a 128k -tag:v hvc1 output.mp4
 #https://aaronk.me/ffmpeg-hevc-apple-devices/
-
 end
 
 
@@ -243,6 +246,13 @@ function grabFrames
     ffmpeg -ss $start -i $argv[1] -r $fps $argv[1]_still_%04d.jpeg
 
 end
+
+
+
+
+#slow down audio:
+# ffmpeg -i shuaib.ogg  -filter:a "atempo=0.5" -vn slow_shuaib.mp3
+
 
 
 
