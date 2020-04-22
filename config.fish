@@ -4,7 +4,9 @@ alias lll="ls -loGaprt"
 
 # Start Jupyter notebooks with the i/o limit set high.
 alias tjupyter="jupyter notebook --NotebookApp.iopub_data_rate_limit=10000000000"
+alias jupyterNotebook="tjupyter"
 
+alias bbedit="open -a bbedit"
 
 # launch a macOS system notification.
 # takes two arguemts title and message.
@@ -38,6 +40,14 @@ function forever
   end
 end
 
+
+function foreverWait
+  while sleep 3
+   eval $argv
+  end
+end
+
+
 # Change directory and list the new directory and working directory.
 function cs
   cd $argv; ll; printf "\n"; pwd;
@@ -50,7 +60,7 @@ end
 
 # Recursively search files in subdirectories for the input string; Case insensitive and excluding common large directories.
 function tgrex
-  grep -iIrF $argv * --exclude-dir log --exclude-dir tmp --exclude-dir _site --exclude-dir vendor --exclude-dir node_modules --exclude-dir wp-includes --exclude-dir public --exclude-dir indexAndLandingPublic --exclude-dir landingPagePublic;
+  grep -iIrF $argv * --exclude-dir log --exclude-dir tmp --exclude-dir _site --exclude-dir vendor --exclude-dir node_modules --exclude-dir wp-includes --exclude-dir public --exclude-dir indexAndLandingPublic --exclude-dir landingPagePublic --exclude-dir .git --exclude-dir build --exclude-dir bower_components;
 end
 
 
@@ -83,7 +93,15 @@ end
 
 # Open the result from tfind.
 function otfind
- tfind "$argv"  |xargs open ;
+  set app $argv[2]
+
+  if test -n $app
+    tfind "$argv[1]"  |xargs open -a $app ;
+    return;
+  end
+  
+ tfind "$argv[1]"  |xargs open ;
+ 
 end
 
 
@@ -258,6 +276,14 @@ end
 
 # =============================================
 
+# Youtube DL
+
+
+alias youtube-dl-audio="youtube-dl -f 'bestaudio[ext=m4a]'"
+
+
+# =============================================
+
 # Print the current local IP address - appends port 3000 as Rails servers are normally hosted there - and copies the resulting string to the clipboard
 alias tip="ipconfig getifaddr en0| awk '{print \"http:\/\/\" \$1 \":3000/\"}'|pbcopy;pbpaste;echo \"[Copied to clipboard]\""
 
@@ -342,6 +368,9 @@ function fish_user_key_bindings
 end
 
 
+# copy the permissions from file1 to file2.
+#chmod (stat -f %A file1) file2
+
 # Useful for pretty-printing a succint git-log - one entry per line, colour coded with user-commit and time.
 alias gitloglong="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit -n"
 
@@ -355,6 +384,27 @@ set -Ux EDITOR emacs
 #CONFIG FOR PATH STUFF
 #set -x PATH $PATH /usr/local/Cellar/qt@5.5/5.5.1_1/bin
 set -x PATH $PATH /Users/tawfiq/anaconda3/bin/
+
+#function export
+#    if [ $argv ] 
+#        set var (echo $argv | cut -f1 -d=)
+#        set val (echo $argv | cut -f2 -d=)
+#        set -g -x $var $val
+#    else
+#        echo 'export var=value'
+#    end
+#end
+
+#export LDFLAGS="/usr/local/opt/openssl@1.1/lib"
+#export CPPFLAGS="/usr/local/opt/openssl@1.1/include"
+
+set -x PATH $PATH /usr/local/opt/openssl@1.1/bin
+
+
+# OpenSSL stuff needed for pipenv and mysql.
+set -x LDFLAGS -L/usr/local/opt/openssl@1.1/lib
+set -x CPPFLAGS -I/usr/local/opt/openssl@1.1/include
+
 
 # Rbenv stuff - needed for gems/bundler
 status --is-interactive; and source (rbenv init -|psub)
