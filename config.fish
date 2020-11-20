@@ -407,4 +407,4 @@ set -x CPPFLAGS -I/usr/local/opt/openssl@1.1/include
 
 
 # Rbenv stuff - needed for gems/bundler
-status --is-interactive; and source (rbenv init -|psub)
+# status --is-interactive; and source (rbenv init -|psub)
