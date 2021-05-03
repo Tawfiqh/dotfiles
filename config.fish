@@ -1,4 +1,5 @@
 
+alias openCode="xargs -I \{\} code \{\}"
 alias ll="ls -Gap"
 alias lll="ls -loGaprt"
 
@@ -41,6 +42,15 @@ function forever
   end
 end
 
+# Keep running the input string.
+# bad/dangerous - but also useful sometimes to auto-rerun a script on failure.
+# e.g a server or live-reload that exits on error.
+function foreverOnKey
+  while sleep 1
+   eval $argv
+   read -n 1 -P "Press any key to re-run"
+  end
+end
 
 function foreverWait
   while sleep 3
@@ -61,7 +71,7 @@ end
 
 # Recursively search files in subdirectories for the input string; Case insensitive and excluding common large directories.
 function tgrex
-  grep -iIrF $argv * --exclude-dir log --exclude-dir tmp --exclude-dir _site --exclude-dir vendor --exclude-dir node_modules --exclude-dir wp-includes --exclude-dir public --exclude-dir indexAndLandingPublic --exclude-dir landingPagePublic --exclude-dir .git --exclude-dir build --exclude-dir bower_components;
+  grep -iIrF $argv * --exclude-dir log --exclude-dir tmp --exclude-dir _site --exclude-dir vendor --exclude-dir node_modules --exclude-dir wp-includes --exclude-dir public --exclude-dir indexAndLandingPublic --exclude-dir landingPagePublic --exclude-dir .git --exclude-dir build --exclude-dir bower_components --exclude-dir dist --exclude-dir env;
 end
 
 
@@ -89,7 +99,7 @@ end
 
 # Recursively search subdirectories for a filename containing the input string; Case insensitive and excluding common large directories.
 function tfind
-  find . -iname "*$argv*" -not -path "./vendor/*";
+  find . -iname "*$argv*" -not -path "./vendor/*" -not -path "./env/*" -not -path "*./env/*" -not -path "*node_modules/*";
 end
 
 # Open the result from tfind.
@@ -97,6 +107,7 @@ function otfind
   set app $argv[2]
 
   if test -n $app
+    echo "Finding and then opening with $app"
     tfind "$argv[1]"  |xargs open -a $app ;
     return;
   end
@@ -105,37 +116,6 @@ function otfind
  
 end
 
-# =============================================
-# Polymer / smartViz scripts
-
-function smartviz_start
-  
-  # 1. Start the frontend
-  echo "starting smartviz_frontend"
-  cd ~/Documents/Projects_BuroHappold/smartviz-dashboard-frontend/;
-  polymer serve & #This then runs in the background so that the backend can start.
-
-  
-  
-  # 2.Start the backend
-  echo "starting smartviz_backend"
-  cd ~/Documents/Projects_BuroHappold/smartviz_backend_django/;
-  pipenv run ./start.sh # This will stay running in the foreground. Won't proceed to the next line unless the user interrupts
-
-
-  # If we get here then there was a user interrupt.
-  echo "closing smartviz_backend"
-
-  # We pull polymer serve, back into the foreground.
-  fg #Brings it back to the foreground;
-
-  # user interrupts again and we can close the program
-  echo "closing smartviz_frontend"
-  
-
-end
-
-# =============================================
 
 function dhikr
   set n $argv[1]
@@ -311,7 +291,7 @@ function grabFrames
     # $arfv[2] = start_time (optional)
     # $arfv[3] = duration (optional)
     # $arfv[4] = fps (optional)
-	    
+     
 
     if test -z $argv[1]
       echo "filename needed"
@@ -382,6 +362,10 @@ function logo
                        (UU)'(set_color normal)
 end
 
+# =============================================
+# GIT Aliases and command
+# =============================================
+
 # Run a git command but using "less".
 # Default pager on my machine is cat - outputs the whole diff.
 # This runs the desired git command but using "less"
@@ -418,6 +402,36 @@ function otouch --argument file app
 end
 
 
+# Useful for pretty-printing a succint git-log - one entry per line, colour coded with user-commit and time.
+
+alias gitloglong="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit -n"
+
+alias gitbranchdate="git branch --sort=-committerdate"
+alias gitMergeDev="git fetch origin develop:develop; git merge origin/develop"
+alias gc="git checkout"
+
+function gitTicket
+    gitbranchdate | grep $argv[1] | xargs git checkout
+end
+
+alias gt="gitTicket"
+
+function lgitTicket
+    gitbranchdate | grep $argv[1]
+end
+
+alias lgt="lgitTicket"
+
+alias gitDiffDevelopNameOnly="git diff develop --name-only"
+alias gcbDev="git checkout develop; git pull; git checkout -b" # And then the name of the branch you want to base of develop.
+alias gitBranchOffDev="gcbDev"
+
+#Log ALL even if the commits aren't on a branch - i.e they're detached but not garbage collected yet. 
+alias gitlogall="git log --graph --decorate (git rev-list -g --all) -n"
+
+
+# =============================================
+
 # https://superuser.com/questions/719531/what-is-the-equivalent-of-bashs-and-in-the-fish-shell
 function bind_bang
     switch (commandline -t)[-1]
@@ -446,13 +460,6 @@ end
 
 # copy the permissions from file1 to file2.
 #chmod (stat -f %A file1) file2
-
-# Useful for pretty-printing a succint git-log - one entry per line, colour coded with user-commit and time.
-alias gitloglong="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit -n"
-
-#Log ALL even if the commits aren't on a branch - i.e they're detached but not garbage collected yet. 
-alias gitlogall="git log --graph --decorate (git rev-list -g --all) -n"
-
 
 # Set default editor as Emacs
 set -Ux EDITOR emacs
@@ -486,7 +493,7 @@ set -x CPPFLAGS -I/usr/local/opt/openssl@1.1/include
 
 
 # Rbenv stuff - needed for gems/bundler
-status --is-interactive; and source (rbenv init -|psub)
+# status --is-interactive; and source (rbenv init -|psub)
 
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
