@@ -7,6 +7,7 @@ alias tjupyter="jupyter notebook --NotebookApp.iopub_data_rate_limit=10000000000
 alias jupyterNotebook="tjupyter"
 
 alias bbedit="open -a bbedit"
+alias xcode="open -a Xcode"
 
 # launch a macOS system notification.
 # takes two arguemts title and message.
@@ -104,6 +105,37 @@ function otfind
  
 end
 
+# =============================================
+# Polymer / smartViz scripts
+
+function smartviz_start
+  
+  # 1. Start the frontend
+  echo "starting smartviz_frontend"
+  cd ~/Documents/Projects_BuroHappold/smartviz-dashboard-frontend/;
+  polymer serve & #This then runs in the background so that the backend can start.
+
+  
+  
+  # 2.Start the backend
+  echo "starting smartviz_backend"
+  cd ~/Documents/Projects_BuroHappold/smartviz_backend_django/;
+  pipenv run ./start.sh # This will stay running in the foreground. Won't proceed to the next line unless the user interrupts
+
+
+  # If we get here then there was a user interrupt.
+  echo "closing smartviz_backend"
+
+  # We pull polymer serve, back into the foreground.
+  fg #Brings it back to the foreground;
+
+  # user interrupts again and we can close the program
+  echo "closing smartviz_frontend"
+  
+
+end
+
+# =============================================
 
 function dhikr
   set n $argv[1]
@@ -145,19 +177,32 @@ alias flatten="find . -mindepth 2 -type f -exec mv -i '{}' . ';'"
 
 # Flattens a folder that may have subfolders containing pictures, then separates all the RAW files into a folder called RAWs
 alias picFlow_flatten_mv_raw="flatten; mkdir RAWs; ls *.ARW | xargs -I \"\{\}\" mv \"\{\}\" RAWs/"
+alias picFlow_flatten_mv_jpg="flatten; mkdir JPGs; ls *.JPG | xargs -I \"\{\}\" mv \"\{\}\" JPGs/"
 
 # Moves all the video files into a Films folder - can probable do this with && so that it only runs in mp4 files are found.
 function picFlow_flatten_mv_films
-  set -l filmFiles *.{MP4,mp4};
+  set -l filmFiles *.{MP4,mp4,MOV,mov};
   test  -n "$filmFiles" ;and mkdir Films;
-  test  -n "$filmFiles" ;and ls *.{MP4,mp4}| xargs -I "{}" mv "{}" Films/
+  test  -n "$filmFiles" ;and ls *.{MP4,mp4,MOV,mov}| xargs -I "{}" mv "{}" Films/
 end
 
 
-alias tPhotoFlow="picFlow_flatten_mv_raw;picFlow_flatten_mv_films"
+# Moves all HEIC the video files into a Films folder - can probable do this with && so that it only runs in mp4 files \
+function picFlow_flatten_mv_heic
+  set -l heicFiles *.{HEIC,heic};
+  test  -n "$heicFiles" ;and mkdir HEIC_iPhone;
+  test  -n "$heicFiles" ;and ls *.{HEIC,heic}| xargs -I "{}" mv "{}" HEIC_iPhone/
+end
+
+
+alias tPhotoFlow="picFlow_flatten_mv_raw;picFlow_flatten_mv_films;picFlow_flatten_mv_heic"
+
+alias tPhotoFlowJPEG="picFlow_flatten_mv_jpg;picFlow_flatten_mv_films;copyJPGs; echo 'JPEGs that don\'t have an accompanying RAW/ARW are now in the folder JPGs.'"
+
 
 # Copy all the Raw files out of the RAWs folder.
 alias copyRaws="ls *.{JPG,jpg} | sed 's/...\$/ARW/' | xargs -I '{}' mv 'RAWs/{}' '{}'"
+alias copyJPGs="ls *.ARW | sed 's/...\$/JPG/' | xargs -I '{}' mv 'JPGs/{}' '{}'"
 
 # Once files have been separated into JPEGs and a subfolder of RAWs one might delete some of the JPEGs that are bad.
 # This then deletes the corresponding RAW files.
@@ -202,9 +247,27 @@ function removeEditedSecondNames
 end
 
 
+function removeEditedThirdNames
+
+  # Get all files that are -2 duplicates                                                                                                                 
+  for fileFound in (ls *-3.jpg)
+    # Get rid of the -3 from the filename                                                                                                                
+    set file2 (echo $fileFound | sed 's/-3//g')
+
+    # Useful output for debugging and seeing what's going on.                                                                                            
+    echo mv $fileFound $file2
+
+    # Move the newer "ABCD-3.jpg" to replace the original "ABCD.jpg"                                                                                     
+    mv $fileFound $file2
+  end
+
+end
 
 
 
+
+
+alias safariHistoryTimes="cp  ~/Library/Safari/History.db ./; sqlite3 History.db \"select datetime(visit_time+978307200, 'unixepoch', 'localtime') ,title from history_visits order by visit_time desc;\" | head -n 1000"
 
 # =============================================
 # FFMPEG Helpers
@@ -219,7 +282,7 @@ function convertVideoToiPhone2
 #  ffmpeg -i $argv[1] -acodec aac -ab 128kb -vcodec mpeg4 -mbd 2 -flags +4mv+trell  -cmp 2 -subcmp 2 -s 320x180 iphone_output.mp4
 #  ffmpeg -i $argv[1] -acodec aac -ab 128kb -vcodec mpeg4 -mbd 2 -flags +4mv+trell  -cmp 2 -subcmp 2 -s 320x180 iphone_output.mp4
   set fileName (echo $argv[1] | cut -d. -f1)
-  ffmpeg -i $argv[1] -c:v libx265 -crf 63 -c:a aac -b:a 128k -tag:v hvc1 $filename_iphone.mp4
+  ffmpeg -i $argv[1] -c:v libx265 -crf 63 -c:a aac -b:a 128k -tag:v hvc1 iphone_$argv[1]
 #ffmpeg -i input.avi -c:v libx265 -crf 28 -c:a aac -b:a 128k -tag:v hvc1 output.mp4
 #https://aaronk.me/ffmpeg-hevc-apple-devices/
 end
@@ -231,6 +294,7 @@ end
 
 function convertVideoToiPhone
     ffmpeg -i $argv[1] -vcodec libx264 iphone_$argv[1]
+    echo "Export complete. Now open it in quicktime and re-export 🙄 . Not ideal, but it works 🤷‍♀️"
 end
 
 function removeVideoSound
@@ -242,6 +306,12 @@ end
 # -ss is start time
 # r is the framerate-fps. so 2 means 1 frame every 0.5s. 
 function grabFrames
+
+    # $argv[1] = filename
+    # $arfv[2] = start_time (optional)
+    # $arfv[3] = duration (optional)
+    # $arfv[4] = fps (optional)
+	    
 
     if test -z $argv[1]
       echo "filename needed"
@@ -281,6 +351,12 @@ end
 
 alias youtube-dl-audio="youtube-dl -f 'bestaudio[ext=m4a]'"
 
+# =============================================
+
+#Raspberry - Pi
+# ssh pi@raspberrypi2.local
+
+alias rpi="forever 'ssh -o ConnectTimeout=1 pi@raspberrypi2.local' "
 
 # =============================================
 
@@ -374,6 +450,9 @@ end
 # Useful for pretty-printing a succint git-log - one entry per line, colour coded with user-commit and time.
 alias gitloglong="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit -n"
 
+#Log ALL even if the commits aren't on a branch - i.e they're detached but not garbage collected yet. 
+alias gitlogall="git log --graph --decorate (git rev-list -g --all) -n"
+
 
 # Set default editor as Emacs
 set -Ux EDITOR emacs
@@ -408,3 +487,9 @@ set -x CPPFLAGS -I/usr/local/opt/openssl@1.1/include
 
 # Rbenv stuff - needed for gems/bundler
 status --is-interactive; and source (rbenv init -|psub)
+
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+# eval /Users/tawfiq/anaconda3/bin/conda "shell.fish" "hook" $argv | source
+# <<< conda initialize <<<
+
