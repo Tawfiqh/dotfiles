@@ -9,10 +9,12 @@ alias jupyterNotebook="tjupyter"
 
 alias bbedit="open -a bbedit"
 alias xcode="open -a Xcode"
+alias youtube-dl="yt-dlp"
 
 # launch a macOS system notification.
 # takes two arguemts title and message.
 # Useful for putting at the end of another command so you get notified when your command has completed.
+# e.g: $ python long_script.py; notify "script finished" "Congrats!!"
 function notify
   set message $argv[2]
 
@@ -58,6 +60,8 @@ function foreverWait
   end
 end
 
+
+alias googlePing='foreverWait "ping -i 5 google.com"'
 
 # Change directory and list the new directory and working directory.
 function cs
@@ -469,7 +473,6 @@ set -Ux EDITOR emacs
 
 #CONFIG FOR PATH STUFF
 #set -x PATH $PATH /usr/local/Cellar/qt@5.5/5.5.1_1/bin
-set -x PATH $PATH /Users/tawfiq/anaconda3/bin/
 
 #function export
 #    if [ $argv ] 
@@ -495,8 +498,35 @@ set -x CPPFLAGS -I/usr/local/opt/openssl@1.1/include
 # Rbenv stuff - needed for gems/bundler
 # status --is-interactive; and source (rbenv init -|psub)
 
+
+
+
+
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
-# eval /Users/tawfiq/anaconda3/bin/conda "shell.fish" "hook" $argv | source
+eval /Users/tawfiq/opt/anaconda3/bin/conda "shell.fish" "hook" $argv | source
 # <<< conda initialize <<<
 
+# PyEnv Stuff
+status is-login; and pyenv init --path | source
+pyenv init - | source
+
+
+
+# For multi-processing python stuff
+set -x OBJC_DISABLE_INITIALIZE_FORK_SAFETY YES
+set -x MLFLOW_TRACKING_URI http://localhost:5000
+
+
+## Node stuff -- for v 14
+#node@14 is keg-only, which means it was not symlinked into /usr/local,
+#because this is an alternate version of another formula.
+
+#If you need to have node@14 first in your PATH, run:
+#echo 'export PATH="/usr/local/opt/node@14/bin:$PATH"' >> ~/.zshrc
+set -x PATH $PATH /usr/local/opt/node@14/bin
+    
+#For compilers to find node@14 you may need to set:
+#  export LDFLAGS="-L/usr/local/opt/node@14/lib"
+#  export CPPFLAGS="-I/usr/local/opt/node@14/include"
+set -x PATH $PATH ~/bin
